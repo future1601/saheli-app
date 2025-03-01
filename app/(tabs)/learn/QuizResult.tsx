@@ -1,10 +1,58 @@
-import React from "react";
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useTranslation } from 'react-i18next';
+import DynamicText from '../../../components/DynamicText';
+import translateText from '/home/mors/saheli-app/app/translateText.js';
 
-export default function QuizResult() {
+interface QuizResultProps {
+  score: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  onRetry: () => void;
+  onContinue: () => void;
+}
+
+export default function QuizResult({ 
+  score, 
+  totalQuestions, 
+  correctAnswers, 
+  onRetry, 
+  onContinue 
+}: QuizResultProps) {
   const router = useRouter();
-  const { score, total } = useLocalSearchParams();
+  const { i18n } = useTranslation();
+  const [translatedFeedback, setTranslatedFeedback] = useState("");
+
+  useEffect(() => {
+    const translateFeedback = async () => {
+      const percentage = (correctAnswers / totalQuestions) * 100;
+      let feedback = "";
+
+      if (percentage >= 80) {
+        feedback = "Excellent work! You're mastering this topic!";
+      } else if (percentage >= 60) {
+        feedback = "Good job! Keep practicing to improve further.";
+      } else {
+        feedback = "Keep trying! Practice makes perfect.";
+      }
+
+      if (i18n.language === 'en') {
+        setTranslatedFeedback(feedback);
+        return;
+      }
+
+      try {
+        const translated = await translateText(feedback, i18n.language);
+        setTranslatedFeedback(translated);
+      } catch (error) {
+        console.error('Translation error:', error);
+        setTranslatedFeedback(feedback);
+      }
+    };
+
+    translateFeedback();
+  }, [i18n.language, correctAnswers, totalQuestions]);
 
   return (
     <View style={styles.container}>
@@ -22,19 +70,32 @@ export default function QuizResult() {
 
       {/* Score & Answers */}
       <View style={styles.resultCard}>
-        <Text style={styles.scoreLabel}>SCORE GAINED</Text>
-        <Text style={styles.scoreValue}>{score || 0}</Text>
+        <DynamicText text="SCORE GAINED" style={styles.scoreLabel} />
+        <Text style={styles.scoreValue}>{score}</Text>
 
-        <Text style={styles.correctLabel}>CORRECT ANSWERS</Text>
-        <Text style={styles.correctValue}>
-          {score || 0} / {total || 0}
-        </Text>
+        <View style={styles.statsRow}>
+          <View style={styles.stat}>
+            <DynamicText text="Total Questions" style={styles.correctLabel} />
+            <Text style={styles.correctValue}>{totalQuestions}</Text>
+          </View>
+          <View style={styles.stat}>
+            <DynamicText text="Correct Answers" style={styles.correctLabel} />
+            <Text style={styles.correctValue}>{correctAnswers}</Text>
+          </View>
+        </View>
+
+        <Text style={styles.feedback}>{translatedFeedback}</Text>
       </View>
 
       {/* Ok Button */}
-      <TouchableOpacity style={styles.okButton} onPress={() => router.push("/(tabs)/learn")}>
-        <Text style={styles.okButtonText}>Okay</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={onRetry}>
+          <DynamicText text="Try Again" style={styles.okButtonText} />
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.button, styles.primaryButton]} onPress={onContinue}>
+          <DynamicText text="Continue" style={styles.okButtonText} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -95,12 +156,32 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#374151",
   },
-  okButton: {
+  statsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+  stat: {
+    alignItems: "center",
+  },
+  feedback: {
+    fontSize: 16,
+    color: "#4B5563",
+    marginBottom: 16,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 30,
+  },
+  button: {
     backgroundColor: "#0F766E",
     borderRadius: 8,
     paddingHorizontal: 40,
     paddingVertical: 14,
-    marginTop: 30,
+  },
+  primaryButton: {
+    backgroundColor: "#0F766E",
   },
   okButtonText: {
     color: "#FFF",

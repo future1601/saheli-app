@@ -1,95 +1,102 @@
-import { useState } from "react";
-import { View, Text, Image, TouchableOpacity, Dimensions, StyleSheet } from "react-native";
+import React, { useState, useRef } from 'react';
+import { View, FlatList, StyleSheet, Dimensions, TouchableOpacity, SafeAreaView, Image } from 'react-native';
 import { useRouter } from "expo-router";
-import { GestureHandlerRootView, PanGestureHandler, State } from "react-native-gesture-handler";
+import DynamicText from '@/components/DynamicText';
+import { useTranslation } from 'react-i18next';
 
-const { width } = Dimensions.get("window");
-
-const slides = [
-  {
-    id: 1,
-    image: require("/home/mors/saheli-app/assets/images/onboarding-image-1.png"),
-    title: "Empower Your Financial Journey",
-    text: "Take control of your finances whether online or offline.",
-  },
-  {
-    id: 2,
-    image: require("/home/mors/saheli-app/assets/images/onboarding-image-2.png"),
-    title: "Accessible Tools for Everyone",
-    text: "Join savings groups, access mentorship, and collaborate with others. Gain financial knowledge through interactive lessons.",
-  },
-  {
-    id: 3,
-    image: require("/home/mors/saheli-app/assets/images/onboarding-image-3.png"),
-    title: "Learn, Save, and Grow Together",
-    text: "Empowering women through financial literacy, personalized budgeting, and community support for a brighter future.",
-  },
-];
+const { width, height } = Dimensions.get('window');
 
 export default function OnboardingScreen() {
-  const [index, setIndex] = useState(0);
   const router = useRouter();
+  const { t } = useTranslation();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const flatListRef = useRef(null);
+  
+  // Use static translation keys instead of dynamic translation
+  const slides = [
+    {
+      id: '1',
+      title: t('onboarding.slide1.title', 'Welcome to Saheli'),
+      description: t('onboarding.slide1.description', 'Your trusted companion for financial growth'),
+      image: require('../assets/images/onboarding-image-1.png')
+    },
+    {
+      id: '2',
+      title: t('onboarding.slide2.title', 'Learn & Grow'),
+      description: t('onboarding.slide2.description', 'Access educational content and quizzes to improve your financial knowledge'),
+      image: require('../assets/images/onboarding-image-2.png')
+    },
+    {
+      id: '3',
+      title: t('onboarding.slide3.title', 'Connect & Share'),
+      description: t('onboarding.slide3.description', 'Join kitty groups and connect with like-minded women'),
+      image: require('../assets/images/onboarding-image-3.png')
+    }
+  ];
 
-  const handleSwipe = (event) => {
-    const { translationX, state } = event.nativeEvent;
+  const renderItem = ({ item }) => (
+    <View style={styles.slide}>
+      {item.image && <Image source={item.image} style={styles.image} />}
+      <DynamicText style={styles.title}>{item.title}</DynamicText>
+      <DynamicText style={styles.description}>{item.description}</DynamicText>
+    </View>
+  );
 
-    if (state === State.END) {
-      if (translationX < -50 && index < slides.length - 1) {
-        setIndex((prevIndex) => Math.min(prevIndex + 1, slides.length - 1));
-      } else if (translationX > 50 && index > 0) {
-        setIndex((prevIndex) => Math.max(prevIndex - 1, 0));
-      }
+  const handleNext = () => {
+    if (currentIndex < slides.length - 1) {
+      flatListRef.current?.scrollToIndex({
+        index: currentIndex + 1,
+        animated: true
+      });
+    } else {
+      router.push("/LoginScreen");
     }
   };
 
+  const handleSkip = () => {
+    router.push("/LoginScreen");
+  };
+
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <PanGestureHandler onHandlerStateChange={handleSwipe}>
-        <View style={styles.container}>
-          {slides[index] && (
-            <>
-              {/* Image Section */}
-              <Image source={slides[index].image} style={styles.image} />
+    <SafeAreaView style={styles.container}>
+      <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+        <DynamicText style={styles.skipButtonText} translationKey="common.skip">Skip</DynamicText>
+      </TouchableOpacity>
+      
+      <FlatList
+        ref={flatListRef}
+        data={slides}
+        renderItem={renderItem}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={(e) => {
+          setCurrentIndex(Math.round(e.nativeEvent.contentOffset.x / width));
+        }}
+        keyExtractor={(item) => item.id}
+      />
+      
+      <View style={styles.pagination}>
+        {slides.map((_, index) => (
+          <View
+            key={index}
+            style={[
+              styles.paginationDot,
+              index === currentIndex && styles.paginationDotActive
+            ]}
+          />
+        ))}
+      </View>
 
-              {/* Title & Text */}
-              <Text style={styles.title}>{slides[index].title}</Text>
-              <Text style={styles.text}>{slides[index].text}</Text>
-
-              {/* Pagination Dots */}
-              <View style={styles.dotsContainer}>
-                {slides.map((_, i) => (
-                  <TouchableOpacity
-                    key={i}
-                    onPress={() => setIndex(i)}
-                    style={[styles.dot, index === i && styles.activeDot]}
-                  />
-                ))}
-              </View>
-
-              {/* Buttons */}
-              <View style={styles.buttonContainer}>
-                {/* Skip → Goes to LoginScreen */}
-                <TouchableOpacity onPress={() => router.push("/LoginScreen")} style={styles.skipButton}>
-                  <Text style={styles.skipText}>Skip</Text>
-                </TouchableOpacity>
-
-                {/* Next → If last slide, go to LoginScreen; else next slide */}
-                <TouchableOpacity
-                  onPress={() =>
-                    index < slides.length - 1
-                      ? setIndex((prevIndex) => Math.min(prevIndex + 1, slides.length - 1))
-                      : router.push("/LoginScreen")
-                  }
-                  style={styles.nextButton}
-                >
-                  <Text style={styles.nextButtonText}>Next</Text>
-                </TouchableOpacity>
-              </View>
-            </>
-          )}
-        </View>
-      </PanGestureHandler>
-    </GestureHandlerRootView>
+      <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+        <DynamicText 
+          style={styles.nextButtonText}
+          translationKey={currentIndex === slides.length - 1 ? "onboarding.getStarted" : "onboarding.next"}
+        >
+          {currentIndex === slides.length - 1 ? "Get Started" : "Next"}
+        </DynamicText>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 }
 
@@ -97,66 +104,80 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
+  },
+  skipButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex: 10,
+  },
+  skipButtonText: {
+    fontSize: 16,
+    color: "#FF3B5C",
+    fontWeight: "bold",
+  },
+  slide: {
+    width,
+    height: height * 0.8,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 40,
   },
   image: {
-    width: "90%",
-    height: "50%",
-    resizeMode: "contain",
+    width: width * 0.7,
+    height: width * 0.7,
+    resizeMode: 'contain',
+    marginBottom: 30,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: 20,
+    marginBottom: 20,
     fontFamily: "SpaceMono",
+    color: "#333",
   },
-  text: {
+  description: {
     fontSize: 16,
     color: "gray",
     textAlign: "center",
-    marginTop: 10,
-    paddingHorizontal: 20,
+    lineHeight: 24,
   },
-  dotsContainer: {
+  pagination: {
     flexDirection: "row",
+    justifyContent: "center",
     marginTop: 20,
   },
-  dot: {
-    height: 8,
-    width: 8,
+  paginationDot: {
+    height: 10,
+    width: 10,
     backgroundColor: "#ccc",
-    borderRadius: 4,
-    marginHorizontal: 4,
-  },
-  activeDot: {
-    backgroundColor: "#FF3B5C",
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    marginTop: 30,
-  },
-  skipButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
     borderRadius: 5,
+    marginHorizontal: 8,
   },
-  skipText: {
-    fontSize: 16,
-    color: "#FF3B5C",
-    fontWeight: "bold",
+  paginationDotActive: {
+    backgroundColor: "#FF3B5C",
+    width: 20,
   },
   nextButton: {
     backgroundColor: "#FF3B5C",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 5,
-    marginLeft: 10,
+    paddingHorizontal: 40,
+    paddingVertical: 15,
+    borderRadius: 30,
+    marginTop: 30,
+    marginBottom: 40,
+    alignSelf: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   nextButtonText: {
-    fontSize: 16,
+    fontSize: 18,
     color: "white",
     fontWeight: "bold",
   },

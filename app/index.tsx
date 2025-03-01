@@ -1,8 +1,10 @@
 import { View, Text, Image, TouchableWithoutFeedback, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import { useTranslation } from 'react-i18next';
 
 export default function SplashScreen() {
   const router = useRouter();
+  const { t, i18n } = useTranslation();
 
   return (
     <TouchableWithoutFeedback onPress={() => router.push("/language-selection")}>

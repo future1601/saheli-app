@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, FlatList, StyleSheet } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { useTranslation } from 'react-i18next';
+import DynamicText from '../../../components/DynamicText';
+import translateText from '/home/mors/saheli-app/app/translateText.js';
 
 // Correct image imports using absolute paths
 const avatarSita = require("/home/mors/saheli-app/assets/images/avatar-sita.png");
@@ -21,9 +24,57 @@ const allMembers = [
 export default function KittyPoolDetail() {
   const router = useRouter();
   const { poolName } = useLocalSearchParams();
+  const { i18n } = useTranslation();
 
   // Track whether the user has joined or not
   const [hasJoined, setHasJoined] = useState(false);
+
+  const [translatedData, setTranslatedData] = useState({
+    poolName: "Monthly Savings Pool",
+    description: "Join our monthly savings pool and grow your money together!",
+    monthlyAmount: "₹1,000",
+    totalPool: "₹12,000",
+    specialGuest: "Priya Sharma",
+    guestTitle: "Financial Advisor"
+  });
+
+  useEffect(() => {
+    const translateContent = async () => {
+      if (i18n.language === 'en') {
+        setTranslatedData({
+          poolName: "Monthly Savings Pool",
+          description: "Join our monthly savings pool and grow your money together!",
+          monthlyAmount: "₹1,000",
+          totalPool: "₹12,000",
+          specialGuest: "Priya Sharma",
+          guestTitle: "Financial Advisor"
+        });
+        return;
+      }
+
+      try {
+        const [poolName, description, specialGuest, guestTitle] = await Promise.all([
+          translateText("Monthly Savings Pool", i18n.language),
+          translateText("Join our monthly savings pool and grow your money together!", i18n.language),
+          translateText("Priya Sharma", i18n.language),
+          translateText("Financial Advisor", i18n.language)
+        ]);
+
+        setTranslatedData({
+          poolName,
+          description,
+          monthlyAmount: "₹1,000",
+          totalPool: "₹12,000",
+          specialGuest,
+          guestTitle
+        });
+      } catch (error) {
+        console.error('Translation error:', error);
+      }
+    };
+
+    translateContent();
+  }, [i18n.language]);
 
   // Decide which members to show: if hasJoined is false, exclude "You"
   const displayedMembers = hasJoined
@@ -61,10 +112,10 @@ export default function KittyPoolDetail() {
           style={styles.kittyImage}
         />
         <View style={styles.poolInfo}>
-          <Text style={styles.poolTitle}>Kitty Pool A</Text>
-          <Text style={styles.poolDetail}>• Per Month Investment 1000</Text>
-          <Text style={styles.poolDetail}>• Total Pool – 10,000</Text>
-          <Text style={styles.poolDetail}>• This Month Special Guest DR Mohini Singh</Text>
+          <Text style={styles.poolTitle}>{translatedData.poolName}</Text>
+          <Text style={styles.poolDetail}>• Per Month Investment {translatedData.monthlyAmount}</Text>
+          <Text style={styles.poolDetail}>• Total Pool – {translatedData.totalPool}</Text>
+          <Text style={styles.poolDetail}>• This Month Special Guest {translatedData.specialGuest}</Text>
           <Text style={styles.poolDetail}>• Current Kitty – Gita Mishra</Text>
         </View>
 

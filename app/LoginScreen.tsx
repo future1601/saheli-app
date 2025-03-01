@@ -1,11 +1,14 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import { useRouter } from "expo-router";
+import { useTranslation } from 'react-i18next';
+import DynamicText from '@/components/DynamicText';
 
 const { width } = Dimensions.get("window");
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { i18n } = useTranslation();
 
   return (
     <View style={styles.container}>

@@ -1,9 +1,37 @@
-import React from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from "react-native";
 import { useRouter } from "expo-router";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "@/config/firebaseConfig";
+import { useTranslation } from 'react-i18next';
 
 export default function Login() {
   const router = useRouter();
+  const { t } = useTranslation();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async () => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      Alert.alert(t("login.successful"));
+      router.push("/(tabs)/home");
+    } catch (error) {
+      setError(t("login.invalidCredentials"));
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      Alert.alert(t("login.successful"));
+      router.push("/(tabs)/home");
+    } catch (error) {
+      Alert.alert(t("login.googleError"));
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -17,6 +45,8 @@ export default function Login() {
         style={styles.input}
         keyboardType="email-address"
         autoCapitalize="none"
+        value={email}
+        onChangeText={setEmail}
       />
 
       {/* Password Input */}
@@ -28,6 +58,8 @@ export default function Login() {
             placeholderTextColor="#999"
             style={styles.input}
             secureTextEntry
+            value={password}
+            onChangeText={setPassword}
           />
         </View>
         {/* Forgot Password */}
@@ -36,12 +68,24 @@ export default function Login() {
         </TouchableOpacity>
       </View>
 
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
       {/* Login Button */}
       <TouchableOpacity 
         style={styles.loginButton}
-        onPress={() => router.push("/home")} // <-- Navigates to Home
+        onPress={handleLogin}
       >
         <Text style={styles.loginButtonText}>Login</Text>
+      </TouchableOpacity>
+
+      {/* Not registered? Register */}
+      <TouchableOpacity 
+        style={styles.registerContainer}
+        onPress={() => router.push("/register")}
+      >
+        <Text style={styles.registerText}>
+          Not registered with us? <Text style={styles.registerLink}>Register</Text>
+        </Text>
       </TouchableOpacity>
 
       {/* or login with */}
@@ -50,7 +94,7 @@ export default function Login() {
       {/* Google Login */}
       <TouchableOpacity 
         style={styles.googleButton}
-        onPress={() => router.push("/home")} // <-- Navigates to Home
+        onPress={handleGoogleSignIn}
       >
         <Image
           source={require("/home/mors/saheli-app/assets/images/google-icon.png")}
@@ -62,7 +106,7 @@ export default function Login() {
   );
 }
 
-// Styles are unchanged
+// Styles with added register button styling
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -115,9 +159,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  registerContainer: {
+    marginTop: 15,
+    alignItems: "center",
+  },
+  registerText: {
+    fontSize: 14,
+    color: "#666",
+  },
+  registerLink: {
+    color: "#FF3B5C",
+    fontWeight: "bold",
+  },
   orLoginWith: {
     textAlign: "center",
-    marginTop: 30,
+    marginTop: 20,
     marginBottom: 10,
     color: "#666",
   },
@@ -140,5 +196,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#000",
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+    textAlign: 'center',
   },
 });

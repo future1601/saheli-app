@@ -1,0 +1,58 @@
+{
+    "appName": "Saheli",
+    "tagline": "Empower Your Financial Journey",
+    "selectLanguage": "Select Language",
+    "login": "Login",
+    "register": "Register",
+    "forgotPassword": "Forgot Password?",
+    "kitty": "Kitty",
+    "budget": "Budget.AI",
+    "home": {
+      "greeting": "Hi"
+    },
+    "tabs": {
+      "home": "Home",
+      "kitty": "Kitty",
+      "budget": "Budget.AI",
+      "learn": "Learn",
+      "rank": "Rank",
+      "profile": "Profile",
+      "connect": "Connect"
+    },
+    "onboarding": {
+      "next": "Next",
+      "getStarted": "Get Started",
+      "slide1": {
+        "title": "Welcome to Saheli",
+        "description": "Your trusted companion for financial growth"
+      },
+      "slide2": {
+        "title": "Learn & Grow",
+        "description": "Access educational content and quizzes to improve your financial knowledge"
+      },
+      "slide3": {
+        "title": "Connect & Share",
+        "description": "Join kitty groups and connect with like-minded women"
+      }
+    },
+    "common": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "delete": "Delete",
+      "skip": "Skip",
+      "follow": "Follow"
+    },
+    "profile": {
+      "title": "Profile",
+      "welcome": "Welcome, {{name}}!",
+      "editProfile": "Edit Profile",
+      "security": "Security",
+      "settings": "Settings",
+      "help": "Help",
+      "logout": "Logout",
+      "chooseAvatar": "Choose Avatar",
+      "close": "Close"
+    }
+  }
+  

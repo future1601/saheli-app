@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "76730312526",
+    "project_id": "saheli-app-7ca1b",
+    "storage_bucket": "saheli-app-7ca1b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:76730312526:android:cd475f7001edfb8ad9e01f",
+        "android_client_info": {
+          "package_name": "com.saheli.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNzlorfHn7xwbtxr-TGyHb3-Nc5bt8FXw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
