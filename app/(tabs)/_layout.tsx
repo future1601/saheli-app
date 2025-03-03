@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Slot, useRouter } from "expo-router";
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { useTranslation } from 'react-i18next';
+import { BudgetProvider } from '../../context/BudgetContext';
 
 export default function TabsLayout() {
   const router = useRouter();
@@ -15,83 +16,85 @@ export default function TabsLayout() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      {/* Nested screens are rendered here */}
-      <Slot />
+    <BudgetProvider>
+      <View style={{ flex: 1 }}>
+        {/* Nested screens are rendered here */}
+        <Slot />
 
-      {/* Bottom nav */}
-      <View style={styles.bottomNav}>
-        {/* Home */}
-        <TouchableOpacity 
-          style={[styles.navItem, active === "home" ? styles.activeNavItem : null]} 
-          onPress={() => handleNav("home")}
-        >
-          <Image 
-            source={require("../../assets/images/icon-home.png")} 
-            style={[styles.navIcon, active === "home" ? styles.activeNavIcon : null]} 
-          />
-          <Text style={[styles.navText, active === "home" ? styles.activeNavText : null]}>
-            {t('tabs.home')}
-          </Text>
-        </TouchableOpacity>
+        {/* Bottom nav */}
+        <View style={styles.bottomNav}>
+          {/* Home */}
+          <TouchableOpacity 
+            style={styles.navItem} 
+            onPress={() => handleNav("home")}
+          >
+            <Image 
+              source={require("../../assets/images/icon-home.png")} 
+              style={[styles.navIcon, {tintColor: active === "home" ? "#FF3B5C" : "#999"}]} 
+            />
+            <Text style={[styles.navText, active === "home" ? styles.activeNavText : null]}>
+              Home
+            </Text>
+          </TouchableOpacity>
 
-        {/* Kitty Connect */}
-        <TouchableOpacity 
-          style={[styles.navItem, active === "kitty-connect" ? styles.activeNavItem : null]} 
-          onPress={() => handleNav("kitty-connect")}
-        >
-          <Image 
-            source={require("../../assets/images/icon-kitty.png")} 
-            style={[styles.navIcon, active === "kitty-connect" ? styles.activeNavIcon : null]} 
-          />
-          <Text style={[styles.navText, active === "kitty-connect" ? styles.activeNavText : null]}>
-            {t('tabs.kitty')}
-          </Text>
-        </TouchableOpacity>
+          {/* Kitty */}
+          <TouchableOpacity 
+            style={styles.navItem} 
+            onPress={() => handleNav("kitty-connect")}
+          >
+            <Image 
+              source={require("../../assets/images/icon-kitty.png")} 
+              style={[styles.navIcon, {tintColor: active === "kitty-connect" ? "#FF3B5C" : "#999"}]} 
+            />
+            <Text style={[styles.navText, active === "kitty-connect" ? styles.activeNavText : null]}>
+              Kitty
+            </Text>
+          </TouchableOpacity>
 
-        {/* Budget AI */}
-        <TouchableOpacity 
-          style={[styles.navItem, active === "budget-ai" ? styles.activeNavItem : null]} 
-          onPress={() => handleNav("budget-ai")}
-        >
-          <Image 
-            source={require("../../assets/images/icon-budget.png")} 
-            style={[styles.navIcon, active === "budget-ai" ? styles.activeNavIcon : null]} 
-          />
-          <Text style={[styles.navText, active === "budget-ai" ? styles.activeNavText : null]}>
-            {t('tabs.budget')}
-          </Text>
-        </TouchableOpacity>
+          {/* Budget */}
+          <TouchableOpacity 
+            style={styles.navItem} 
+            onPress={() => handleNav("budget-ai")}
+          >
+            <Image 
+              source={require("../../assets/images/icon-budget.png")} 
+              style={[styles.navIcon, {tintColor: active === "budget-ai" ? "#FF3B5C" : "#999"}]} 
+            />
+            <Text style={[styles.navText, active === "budget-ai" ? styles.activeNavText : null]}>
+              Budget
+            </Text>
+          </TouchableOpacity>
 
-        {/* Learn */}
-        <TouchableOpacity 
-          style={[styles.navItem, active === "learn" ? styles.activeNavItem : null]} 
-          onPress={() => handleNav("learn")}
-        >
-          <Image 
-            source={require("../../assets/images/icon-learn.png")} 
-            style={[styles.navIcon, active === "learn" ? styles.activeNavIcon : null]} 
-          />
-          <Text style={[styles.navText, active === "learn" ? styles.activeNavText : null]}>
-            {t('tabs.learn')}
-          </Text>
-        </TouchableOpacity>
+          {/* Learn */}
+          <TouchableOpacity 
+            style={styles.navItem} 
+            onPress={() => handleNav("learn")}
+          >
+            <Image 
+              source={require("../../assets/images/icon-learn.png")} 
+              style={[styles.navIcon, {tintColor: active === "learn" ? "#FF3B5C" : "#999"}]} 
+            />
+            <Text style={[styles.navText, active === "learn" ? styles.activeNavText : null]}>
+              Learn
+            </Text>
+          </TouchableOpacity>
 
-        {/* Leaderboard */}
-        <TouchableOpacity 
-          style={[styles.navItem, active === "leaderboard" ? styles.activeNavItem : null]} 
-          onPress={() => handleNav("leaderboard")}
-        >
-          <Image 
-            source={require("../../assets/images/icon-leaderboard.png")} 
-            style={[styles.navIcon, active === "leaderboard" ? styles.activeNavIcon : null]} 
-          />
-          <Text style={[styles.navText, active === "leaderboard" ? styles.activeNavText : null]}>
-            {t('tabs.rank')}
-          </Text>
-        </TouchableOpacity>
+          {/* Chatbot */}
+          <TouchableOpacity 
+            style={styles.navItem} 
+            onPress={() => handleNav("chatbot")}
+          >
+            <Image 
+              source={require("../../assets/images/icon-help.png")} 
+              style={[styles.navIcon, {tintColor: active === "chatbot" ? "#FF3B5C" : "#999"}]} 
+            />
+            <Text style={[styles.navText, active === "chatbot" ? styles.activeNavText : null]}>
+              Chatbot
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </BudgetProvider>
   );
 }
 
@@ -109,20 +112,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  activeNavItem: {
-    // You can add specific styles for the active tab item if needed
-  },
   navIcon: {
     width: 24,
     height: 24,
-    tintColor: "#999",
-  },
-  activeNavIcon: {
-    tintColor: "#FF3B5C",
   },
   navText: {
     fontSize: 10,
     color: "#999",
+    marginTop: 4,
   },
   activeNavText: {
     color: "#FF3B5C",
