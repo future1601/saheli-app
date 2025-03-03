@@ -13,6 +13,8 @@ import {
 import MapView, { Marker, Circle } from "react-native-maps";
 import * as Location from "expo-location";
 import { useRouter } from "expo-router";
+import { useTranslation } from 'react-i18next';
+import translateText from '../../translateText.js';
 
 const { width } = Dimensions.get("window");
 
@@ -22,25 +24,25 @@ const kittyPools = [
     id: "1",
     title: "Kitty Pool A",
     monthlyInvestment: 1000,
-    image: require("/home/mors/saheli-app/assets/images/image-1.png")
+    image: require("../../../assets/images/image-1.png")
   },
   {
     id: "2",
     title: "Kitty Pool B",
     monthlyInvestment: 2000,
-    image: require("/home/mors/saheli-app/assets/images/image-2.png"),
+    image: require("../../../assets/images/image-2.png"),
   },
   {
     id: "3",
     title: "Kitty Pool C",
     monthlyInvestment: 5000,
-    image: require("/home/mors/saheli-app/assets/images/image-3.png"),
+    image: require("../../../assets/images/image-3.png"),
   },
   {
     id: "4",
     title: "Kitty Pool D",
     monthlyInvestment: 7000,
-    image: require("/home/mors/saheli-app/assets/images/image-4.png"), // placeholder
+    image: require("../../../assets/images/image-4.png"), // placeholder
   },
 ];
 
@@ -57,13 +59,41 @@ const hotspots = [
     title: "Hotspot 2",
     description: "Another zone",
     coords: { latitude: 28.55555006, longitude: 77.347094 },
-  }];
+  },
+  // New hotspots at the exact locations provided
+  {
+    id: "h3",
+    title: "Savings Group A",
+    description: "Monthly savings group with 10 members",
+    coords: { latitude: 28.695214, longitude: 77.182072 },
+  },
+  {
+    id: "h4",
+    title: "Women's Finance Circle",
+    description: "Financial literacy and savings group",
+    coords: { latitude: 28.6843405, longitude: 77.2113883 },
+  },
+  // Additional hotspots
+  {
+    id: "h5",
+    title: "Community Savings Club",
+    description: "Local community-based savings group",
+    coords: { latitude: 28.675651, longitude: 77.206950 },
+  },
+  {
+    id: "h6",
+    title: "Entrepreneur Kitty",
+    description: "Savings group for small business owners",
+    coords: { latitude: 28.669052, longitude: 77.197082 },
+  }
+];
 
 export default function KittyConnect() {
   const router = useRouter();
+  const { i18n } = useTranslation();
 
-  // For user’s location
-  const [location, setLocation] = useState<null | Location.LocationObject>(null);
+  // For user's location
+  const [location, setLocation] = useState(null);
   const [region, setRegion] = useState({
     latitude: 28.6139, // default: New Delhi coords
     longitude: 77.2090,
@@ -74,23 +104,28 @@ export default function KittyConnect() {
 
   useEffect(() => {
     (async () => {
-      // Request permission
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert("Permission Denied", "Location permission is required to show nearby kitty pools.");
+      try {
+        // Request permission
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert("Permission Denied", "Location permission is required to show nearby kitty pools.");
+          setLoadingLocation(false);
+          return;
+        }
+        // Get current position
+        const currentLocation = await Location.getCurrentPositionAsync({});
+        setLocation(currentLocation);
+        setRegion({
+          latitude: currentLocation.coords.latitude,
+          longitude: currentLocation.coords.longitude,
+          latitudeDelta: 0.05,
+          longitudeDelta: 0.05,
+        });
+      } catch (error) {
+        console.error("Location error:", error);
+      } finally {
         setLoadingLocation(false);
-        return;
       }
-      // Get current position
-      const currentLocation = await Location.getCurrentPositionAsync({});
-      setLocation(currentLocation);
-      setRegion({
-        latitude: currentLocation.coords.latitude,
-        longitude: currentLocation.coords.longitude,
-        latitudeDelta: 0.05,
-        longitudeDelta: 0.05,
-      });
-      setLoadingLocation(false);
     })();
   }, []);
 
@@ -104,12 +139,11 @@ export default function KittyConnect() {
         </Text>
       </View>
       <TouchableOpacity
-  style={styles.joinButton}
-  onPress={() => router.push(`/kitty-connect/KittyPoolDetail?poolName=${item.title}`)}
->
-  <Text style={styles.joinButtonText}>Join</Text>
-</TouchableOpacity>
-
+        style={styles.joinButton}
+        onPress={() => router.push(`/kitty-connect/KittyPoolDetail?poolName=${item.title}`)}
+      >
+        <Text style={styles.joinButtonText}>Join</Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -126,7 +160,7 @@ export default function KittyConnect() {
 
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
         {/* Map Section */}
-        <Text style={styles.sectionTitle}>Nearby Kitty’s</Text>
+        <Text style={styles.sectionTitle}>Nearby Kitty&apos;s</Text>
 
         {/* If location is still loading, show a fallback */}
         {loadingLocation ? (
@@ -262,12 +296,10 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   joinButton: {
-    backgroundColor: "#000",
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 6,
     marginLeft: 10,
-    // or your brand color (#FF3B5C) if you prefer
     backgroundColor: "#FF3B5C",
   },
   joinButtonText: {

@@ -3,14 +3,14 @@ import { View, Text, Image, TouchableOpacity, FlatList, StyleSheet } from "react
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useTranslation } from 'react-i18next';
 import DynamicText from '../../../components/DynamicText';
-import translateText from '/home/mors/saheli-app/app/translateText.js';
+import translateText from '../../../app/translateText.js';
 
-// Correct image imports using absolute paths
-const avatarSita = require("/home/mors/saheli-app/assets/images/avatar-sita.png");
-const avatarGita = require("/home/mors/saheli-app/assets/images/avatar-gita.png");
-const avatarKaju = require("/home/mors/saheli-app/assets/images/avatar-kaju.png");
-const avatarSamita = require("/home/mors/saheli-app/assets/images/avatar-samita.png");
-const avatarYou = require("/home/mors/saheli-app/assets/images/avatar-you.png");
+// Correct image imports using relative paths
+const avatarSita = require("../../../assets/images/avatar-sita.png");
+const avatarGita = require("../../../assets/images/avatar-gita.png");
+const avatarKaju = require("../../../assets/images/avatar-kaju.png");
+const avatarSamita = require("../../../assets/images/avatar-samita.png");
+const avatarYou = require("../../../assets/images/avatar-you.png");
 
 const allMembers = [
   { id: "1", name: "Sita Thakur", avatar: avatarSita },
@@ -98,7 +98,7 @@ export default function KittyPoolDetail() {
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <Image
-            source={require("/home/mors/saheli-app/assets/images/icon-back.png")}
+            source={require("../../../assets/images/icon-back.png")}
             style={styles.backIcon}
           />
         </TouchableOpacity>
@@ -108,15 +108,27 @@ export default function KittyPoolDetail() {
       {/* Kitty Pool Details */}
       <View style={styles.poolCard}>
         <Image
-          source={require("/home/mors/saheli-app/assets/images/image-1.png")}
+          source={require("../../../assets/images/image-1.png")}
           style={styles.kittyImage}
         />
         <View style={styles.poolInfo}>
-          <Text style={styles.poolTitle}>{translatedData.poolName}</Text>
-          <Text style={styles.poolDetail}>• Per Month Investment {translatedData.monthlyAmount}</Text>
-          <Text style={styles.poolDetail}>• Total Pool – {translatedData.totalPool}</Text>
-          <Text style={styles.poolDetail}>• This Month Special Guest {translatedData.specialGuest}</Text>
-          <Text style={styles.poolDetail}>• Current Kitty – Gita Mishra</Text>
+          <Text style={styles.poolTitle}>{poolName || translatedData.poolName}</Text>
+          <Text style={styles.poolDetail}>
+            <Text>• Per Month Investment </Text>
+            <Text>{translatedData.monthlyAmount}</Text>
+          </Text>
+          <Text style={styles.poolDetail}>
+            <Text>• Total Pool – </Text>
+            <Text>{translatedData.totalPool}</Text>
+          </Text>
+          <Text style={styles.poolDetail}>
+            <Text>• This Month Special Guest </Text>
+            <Text>{translatedData.specialGuest}</Text>
+          </Text>
+          <Text style={styles.poolDetail}>
+            <Text>• Current Kitty – </Text>
+            <Text>Gita Mishra</Text>
+          </Text>
         </View>
 
         {/* Join/Joined Button */}

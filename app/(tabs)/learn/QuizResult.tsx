@@ -5,54 +5,44 @@ import { useTranslation } from 'react-i18next';
 import DynamicText from '../../../components/DynamicText';
 import translateText from '/home/mors/saheli-app/app/translateText.js';
 
-interface QuizResultProps {
-  score: number;
-  totalQuestions: number;
-  correctAnswers: number;
-  onRetry: () => void;
-  onContinue: () => void;
-}
-
-export default function QuizResult({ 
-  score, 
-  totalQuestions, 
-  correctAnswers, 
-  onRetry, 
-  onContinue 
-}: QuizResultProps) {
+export default function QuizResult() {
   const router = useRouter();
   const { i18n } = useTranslation();
+  const params = useLocalSearchParams();
+  
+  // Parse parameters from URL
+  const score = parseInt(params.score as string) || 0;
+  const total = parseInt(params.total as string) || 0;
+  const correctAnswers = score; // Since score represents correct answers
+  
   const [translatedFeedback, setTranslatedFeedback] = useState("");
 
   useEffect(() => {
-    const translateFeedback = async () => {
-      const percentage = (correctAnswers / totalQuestions) * 100;
-      let feedback = "";
+    // Set feedback based on score percentage
+    const percentage = (correctAnswers / total) * 100;
+    let feedback = "";
 
-      if (percentage >= 80) {
-        feedback = "Excellent work! You're mastering this topic!";
-      } else if (percentage >= 60) {
-        feedback = "Good job! Keep practicing to improve further.";
-      } else {
-        feedback = "Keep trying! Practice makes perfect.";
-      }
+    if (percentage >= 80) {
+      feedback = "Excellent work! You're mastering this topic!";
+    } else if (percentage >= 60) {
+      feedback = "Good job! Keep practicing to improve further.";
+    } else {
+      feedback = "Keep trying! Practice makes perfect.";
+    }
 
-      if (i18n.language === 'en') {
-        setTranslatedFeedback(feedback);
-        return;
-      }
+    // Skip translation for now to isolate the issue
+    setTranslatedFeedback(feedback);
+  }, [correctAnswers, total]);
 
-      try {
-        const translated = await translateText(feedback, i18n.language);
-        setTranslatedFeedback(translated);
-      } catch (error) {
-        console.error('Translation error:', error);
-        setTranslatedFeedback(feedback);
-      }
-    };
+  const handleRetry = () => {
+    // Go back to the quiz
+    router.back();
+  };
 
-    translateFeedback();
-  }, [i18n.language, correctAnswers, totalQuestions]);
+  const handleContinue = () => {
+    // Go back to the chapter list
+    router.push("/(tabs)/learn");
+  };
 
   return (
     <View style={styles.container}>
@@ -70,16 +60,16 @@ export default function QuizResult({
 
       {/* Score & Answers */}
       <View style={styles.resultCard}>
-        <DynamicText text="SCORE GAINED" style={styles.scoreLabel} />
+        <Text style={styles.scoreLabel}>SCORE GAINED</Text>
         <Text style={styles.scoreValue}>{score}</Text>
 
         <View style={styles.statsRow}>
           <View style={styles.stat}>
-            <DynamicText text="Total Questions" style={styles.correctLabel} />
-            <Text style={styles.correctValue}>{totalQuestions}</Text>
+            <Text style={styles.correctLabel}>Total Questions</Text>
+            <Text style={styles.correctValue}>{total}</Text>
           </View>
           <View style={styles.stat}>
-            <DynamicText text="Correct Answers" style={styles.correctLabel} />
+            <Text style={styles.correctLabel}>Correct Answers</Text>
             <Text style={styles.correctValue}>{correctAnswers}</Text>
           </View>
         </View>
@@ -87,13 +77,13 @@ export default function QuizResult({
         <Text style={styles.feedback}>{translatedFeedback}</Text>
       </View>
 
-      {/* Ok Button */}
+      {/* Buttons */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={onRetry}>
-          <DynamicText text="Try Again" style={styles.okButtonText} />
+        <TouchableOpacity style={styles.button} onPress={handleRetry}>
+          <Text style={styles.okButtonText}>Try Again</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, styles.primaryButton]} onPress={onContinue}>
-          <DynamicText text="Continue" style={styles.okButtonText} />
+        <TouchableOpacity style={[styles.button, styles.primaryButton]} onPress={handleContinue}>
+          <Text style={styles.okButtonText}>Continue</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -159,6 +149,8 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 20,
     marginBottom: 16,
   },
   stat: {
@@ -168,17 +160,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#4B5563",
     marginBottom: 16,
+    textAlign: "center",
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    width: "90%",
     marginTop: 30,
   },
   button: {
     backgroundColor: "#0F766E",
     borderRadius: 8,
-    paddingHorizontal: 40,
+    paddingHorizontal: 20,
     paddingVertical: 14,
+    marginHorizontal: 10,
   },
   primaryButton: {
     backgroundColor: "#0F766E",
