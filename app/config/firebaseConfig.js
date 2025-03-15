@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyA7QqomNEm6d7uSZZB1Awagqdk1WMJGhfM",
+    apiKey: "enter the api-key",
     authDomain: "saheli-app-7ca1b.firebaseapp.com",
     projectId: "saheli-app-7ca1b",
     storageBucket: "saheli-app-7ca1b.firebasestorage.app",
