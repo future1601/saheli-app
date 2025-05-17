@@ -12,7 +12,7 @@ from sam import generate_budget_analysis
 import json
 
 # Configure your Google Generative AI API key
-genai.configure(api_key="REMOVED_SECRET")
+genai.configure(api_key="enter your api key")
 
 # Initialize the chat model
 model = genai.GenerativeModel("gemini-2.0-flash")
